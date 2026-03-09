@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journey Map — Insurer Management in Jane</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+  :root {
+    --bg:#E8E6E1;--text:#1A1A1A;--text-muted:#5A5751;
+    --card-task:#FFF9C4;--card-task-border:#E8DF8A;
+    --card-pain:#FFCDD2;--card-pain-border:#EF9A9A;
+    --card-step:#D1C4E9;--card-step-border:#B39DDB;
+    --card-opp:#C8E6C9;--card-opp-border:#A5D6A7;
+    --activity-bg:#1A1A1A;--grid-line:#D5D2CC;--shadow:#D4D1CC20;
+    --col-w:280px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:auto;overflow-y:auto}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);background-size:40px 40px;opacity:0.4;pointer-events:none;z-index:0}
+  .page{position:relative;z-index:1;padding:32px 32px 60px;min-width:max-content}
+  .page-header{margin-bottom:20px;max-width:800px}
+  .page-header h1{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+  .page-header p{font-size:12.5px;color:var(--text-muted);line-height:1.6}
+  .meta-row{font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:500}
+  .top-bar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .goal-chip{background:var(--activity-bg);color:#fff;font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;line-height:1.4;white-space:nowrap}
+  .goal-chip span{color:#90CAF9;font-weight:700;margin-right:4px}
+  .legend{display:flex;gap:16px;margin-bottom:8px;font-size:11px;font-weight:600;color:var(--text-muted);flex-wrap:wrap}
+  .legend-item{display:flex;align-items:center;gap:5px}
+  .legend-swatch{width:16px;height:11px;border-radius:3px;border:1px solid #ccc}
+  .stats-bar{display:flex;gap:18px;margin-bottom:14px;font-size:11px;font-weight:600;flex-wrap:wrap}
+  .stat-item{display:flex;align-items:center;gap:5px;color:var(--text-muted)}
+  .stat-item::before{font-size:9px}
+  .stat-item.pain::before{content:'⬤';color:#EF5350}
+  .stat-item.opp::before{content:'⬤';color:#66BB6A}
+  .stat-item.tasks::before{content:'⬤';color:#7E57C2}
+  .controls{margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .controls button{background:#fff;border:1.5px solid var(--grid-line);border-radius:6px;padding:6px 14px;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-muted);cursor:pointer}
+  .controls button:hover{background:#f0efec;border-color:#bbb}
+  .controls button.active{background:var(--activity-bg);color:#fff;border-color:var(--activity-bg)}
+  .controls-sep{width:1px;height:20px;background:var(--grid-line);margin:0 4px}
+  .actor-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+  .map-row{display:flex;align-items:flex-start;gap:0}
+  .activity-group{display:flex;flex-direction:column;align-items:flex-start}
+  .activity-label{background:var(--activity-bg);color:#fff;font-size:12px;font-weight:700;padding:8px 14px;border-radius:7px;white-space:nowrap;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 8px var(--shadow);margin-bottom:8px}
+  .activity-num{background:rgba(255,255,255,0.15);width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .activity-cols{display:flex;gap:24px;align-items:flex-start}
+  .activity-divider{width:2px;min-width:2px;background:#C4C0B8;align-self:stretch;border-radius:1px;margin:0 24px}
+  .step-col{width:var(--col-w);min-width:var(--col-w);display:flex;flex-direction:column;gap:16px}
+  .fixed-header-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--bg);box-shadow:0 4px 16px rgba(0,0,0,0.1);padding:8px 32px 10px;display:none;overflow:hidden}
+  .fixed-header-bar.visible{display:block}
+  .fixed-header-bar::-webkit-scrollbar{height:0;display:none}
+  .fh-inner{display:flex;align-items:flex-end;gap:0;min-width:max-content}
+  .fh-activity-group{display:flex;flex-direction:column;align-items:flex-start}
+  .fh-activity-group .activity-label{margin-bottom:6px}
+  .fh-step-row{display:flex;gap:24px}
+  .fh-step-card{width:var(--col-w);min-width:var(--col-w)}
+  .fh-divider{width:2px;min-width:2px;background:#C4C0B8;align-self:stretch;margin:0 24px}
+  .fixed-header-bar.sl-mode{padding-left:calc(32px + 150px)}
+  .card{border-radius:7px;padding:9px 11px;font-size:14px;line-height:1.45;box-shadow:1px 2px 5px var(--shadow)}
+  .card-step{background:var(--card-step);border:1.5px solid var(--card-step-border)}
+  .card-step .card-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#5E35B1;margin-bottom:3px}
+  .card-step .card-title{font-size:14px;font-weight:700;color:#311B92;line-height:1.3}
+  .task-group{display:flex;flex-direction:column}
+  .task-header{background:var(--card-task);border:1.5px solid var(--card-task-border);border-radius:7px;padding:8px 11px;font-size:14px;line-height:1.45;box-shadow:1px 2px 5px var(--shadow);cursor:pointer;user-select:none;display:flex;align-items:flex-start;gap:7px;position:relative;z-index:2}
+  .task-header:hover{filter:brightness(0.97)}
+  .task-group.open .task-header{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent}
+  .task-header .toggle{flex-shrink:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#8D7B00;margin-top:1px;transition:transform 0.2s;order:2;margin-left:auto}
+  .task-group.open .task-header .toggle{transform:rotate(90deg)}
+  .task-header .card-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#8D7B00;margin-bottom:1px}
+  .task-header .task-text{flex:1;order:1}
+  .task-details{display:none;flex-direction:column;gap:8px;padding:8px;margin-top:-1px;background:#FDF8D8;border:1.5px solid var(--card-task-border);border-top:none;border-bottom-left-radius:7px;border-bottom-right-radius:7px;position:relative;z-index:1}
+  .task-group.open .task-details{display:flex;animation:expandPanel 0.15s ease-out forwards}
+  .task-group.open .task-details>*{opacity:0;animation:fadeInChild 0.12s ease-out forwards;animation-delay:0.1s}
+  .task-group.open .task-details>*:nth-child(2){animation-delay:0.13s}
+  .task-group.open .task-details>*:nth-child(3){animation-delay:0.16s}
+  .task-group.open .task-details>*:nth-child(4){animation-delay:0.19s}
+  .task-group.open .task-details>*:nth-child(5){animation-delay:0.22s}
+  .task-group.open .task-details>*:nth-child(n+6){animation-delay:0.25s}
+  @keyframes expandPanel{from{max-height:0;opacity:0.5;padding-top:0;padding-bottom:0}to{max-height:2000px;opacity:1;padding-top:8px;padding-bottom:8px}}
+  @keyframes fadeInChild{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+  .card-pain{background:var(--card-pain);border:1.5px solid var(--card-pain-border)}
+  .card-pain .card-type{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#C62828;margin-bottom:1px}
+  .card-opp{background:var(--card-opp);border:1.5px solid var(--card-opp-border)}
+  .card-opp .card-type{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#2E7D32;margin-bottom:1px}
+  .card-pain-sug{background:#FFF3F2;border:1.5px dashed #EF9A9A}
+  .card-pain-sug .card-type{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#C62828;margin-bottom:1px}
+  .card-opp-sug{background:#F2FAF2;border:1.5px dashed #A5D6A7}
+  .card-opp-sug .card-type{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#2E7D32;margin-bottom:1px}
+  .nested-quote{margin-top:6px;padding:6px 9px;border-radius:5px;background:#F5F4F0;border:1px solid #E0DED8;font-style:italic;font-size:14px;line-height:1.4;color:var(--text)}
+  .nested-quote+.nested-quote{margin-top:4px}
+  .quote-source-badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;margin-right:6px;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px;vertical-align:middle;font-style:normal}
+  .nested-quote[data-source="interview"] .quote-source-badge{background:#E3F2FD;color:#1565C0}
+  .nested-quote[data-source="community"] .quote-source-badge{background:#F3E5F5;color:#6A1B9A}
+  .nested-quote[data-source="feedback"] .quote-source-badge{background:#FFF8E1;color:#F57F17}
+  .quote-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:6px;gap:0;background:transparent}
+  .quote-bar .qb-cell{height:100%;min-width:0}
+  .quote-bar .qb-cell.pain{background:#EF5350}
+  .quote-bar .qb-cell.opp{background:#66BB6A}
+  .quote-bar .qb-cell.pain-sug{background:transparent;border:1.5px solid #EF5350;box-sizing:border-box}
+  .quote-bar .qb-cell.opp-sug{background:transparent;border:1.5px solid #66BB6A;box-sizing:border-box}
+  .quote-bar .qb-cell:first-child{border-radius:3px 0 0 3px}
+  .quote-bar .qb-cell:last-child{border-radius:0 3px 3px 0}
+  .quote-bar .qb-cell:first-child:last-child{border-radius:3px}
+  .task-group.open .quote-bar{display:none}
+  .task-meta-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+  .task-meta-row .quote-bar{flex:1;margin-top:0}
+  .task-group.open .task-meta-row{display:none}
+  .jira-badge{display:inline-flex;align-items:center;gap:3px;flex-shrink:0;font-size:9px;font-weight:700;color:#2684FF;background:#EBF1FF;border-radius:4px;padding:1px 6px 1px 4px;line-height:1.5;white-space:nowrap;border:1px solid #C5D8FF}
+  .jira-badge svg{width:9px;height:9px;flex-shrink:0}
+  #swimlane-view{display:none}
+  .swimlane-container{min-width:max-content;padding-top:8px;position:relative}
+  .sl-header-row{display:flex;align-items:flex-end;gap:0;margin-bottom:8px}
+  .sl-header-row .sl-corner{width:150px;min-width:150px}
+  .sl-header-activity-group{display:flex;flex-direction:column;align-items:flex-start}
+  .sl-header-activity-group .sl-step-headers{display:flex;gap:24px}
+  .sl-header-divider{width:2px;min-width:2px;background:#C4C0B8;align-self:stretch;margin:0 24px}
+  .sl-actor-row{display:flex;gap:0;align-items:flex-start;min-height:60px}
+  .sl-actor-row+.sl-actor-row{border-top:1px solid #D5D2CC;padding-top:8px}
+  .sl-actor-label{width:150px;min-width:150px;padding:12px 14px;font-size:13px;font-weight:700;display:flex;align-items:flex-start;gap:6px;position:sticky;left:0;background:var(--bg);z-index:8;align-self:stretch}
+  .sl-actor-label .al-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+  .sl-actor-cells{display:flex;gap:0;align-items:flex-start}
+  .sl-activity-cell-group{display:flex;gap:24px;align-items:flex-start}
+  .sl-cell-divider{width:2px;min-width:2px;background:#C4C0B8;align-self:stretch;margin:0 24px}
+  .sl-step-cell{min-width:var(--col-w);width:var(--col-w);padding:16px 0;display:flex;flex-direction:column;gap:16px}
+  .sl-step-cell .task-group{width:100%;min-width:0}
+  .sl-arrow-overlay{position:absolute;top:0;left:0;pointer-events:none;z-index:3}
+  .sl-arrow-overlay path{fill:none;stroke:#7E57C2;stroke-width:2}
+  .sl-arrow-overlay path.vtask-connector{stroke:#D4A017;stroke-width:2}
+  .edit-notice{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--activity-bg);color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;z-index:200;gap:12px;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap}
+  body.edit-mode .edit-notice{display:flex}
+  .edit-notice button{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:5px;padding:4px 12px;font-family:inherit;font-size:11px;font-weight:700;color:#fff;cursor:pointer}
+  .edit-notice button:hover{background:rgba(255,255,255,0.25)}
+  body.edit-mode [contenteditable="true"]{outline:1.5px dashed #7E57C2;outline-offset:2px;border-radius:3px;cursor:text;min-width:4px}
+  body.edit-mode [contenteditable="true"]:focus{outline:2px solid #7E57C2;background:rgba(126,87,194,0.06)}
+  body::-webkit-scrollbar{height:10px}
+  body::-webkit-scrollbar-track{background:#D5D2CC}
+  body::-webkit-scrollbar-thumb{background:#AAA69E;border-radius:5px}
+  .task-quote-link{flex-shrink:0;order:3;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:#8D7B00;opacity:0.7;position:relative;transition:opacity 0.15s,background 0.15s;margin-top:1px;background:transparent;border:none;padding:0;font-family:inherit}
+  .task-quote-link:hover{opacity:1;background:rgba(141,123,0,0.12)}
+  .task-quote-link svg{width:13px;height:13px;fill:currentColor}
+  .quote-popover{position:absolute;top:calc(100% + 6px);right:0;z-index:50;background:#fff;border:1.5px solid #E0DED8;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,0.13);padding:10px 12px;min-width:220px;max-width:320px;display:none;flex-direction:column;gap:6px;font-style:normal}
+  .task-quote-link.popover-open .quote-popover{display:flex}
+  .quote-popover-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#AAA69E;margin-bottom:2px}
+  .quote-popover .nested-quote{margin-top:0;font-size:11.5px}
+  .jira-panel{margin-top:2px;border-radius:6px;border:1.5px solid #CFD8DC;background:#F8FAFB;overflow:hidden}
+  .jira-panel-header{display:flex;align-items:center;gap:6px;padding:6px 9px;cursor:pointer;user-select:none;font-size:11px;font-weight:700;color:#37474F;background:#ECEFF1;border-bottom:1.5px solid transparent;transition:background 0.15s}
+  .jira-panel-header:hover{background:#E0E7EE}
+  .jira-panel.open .jira-panel-header{border-bottom-color:#CFD8DC}
+  .jira-panel-icon{width:14px;height:14px;flex-shrink:0}
+  .jira-panel-toggle{margin-left:auto;font-size:10px;color:#78909C;transition:transform 0.2s}
+  .jira-panel.open .jira-panel-toggle{transform:rotate(90deg)}
+  .jira-panel-body{display:none;flex-direction:column;gap:4px;padding:8px}
+  .jira-panel.open .jira-panel-body{display:flex}
+  .jira-item{display:flex;align-items:flex-start;gap:7px;padding:5px 7px;border-radius:5px;background:#fff;border:1px solid #E4EAEF;font-size:11.5px;line-height:1.4;text-decoration:none;color:inherit;transition:border-color 0.15s,background 0.15s}
+  .jira-item:hover{border-color:#90CAF9;background:#F0F7FF}
+  .jira-item-type{flex-shrink:0;width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;text-transform:uppercase;margin-top:1px}
+  .jira-item-type.epic{background:#8329CF;color:#fff}
+  .jira-item-type.story{background:#63BA3C;color:#fff}
+  .jira-item-type.bug{background:#E5493A;color:#fff}
+  .jira-item-type.task{background:#4BADE8;color:#fff}
+  .jira-item-type.project{background:#0052CC;color:#fff}
+  .jira-item-meta{display:flex;flex-direction:column;flex:1;min-width:0}
+  .jira-item-key{font-size:9.5px;font-weight:700;color:#6B778C;letter-spacing:0.3px;margin-bottom:1px}
+  .jira-item-title{font-size:11.5px;font-weight:600;color:#172B4D;line-height:1.35}
+  .jira-item-status{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;padding:1px 5px;border-radius:3px;margin-top:3px;display:inline-block;background:#DFE1E6;color:#42526E}
+  .jira-item-status.in-progress{background:#DEEBFF;color:#0052CC}
+  .jira-item-status.done{background:#E3FCEF;color:#006644}
+  .jira-item-status.todo{background:#DFE1E6;color:#42526E}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-header">
+    <h1>Insurer Management in Jane</h1>
+    <p>Journey map covering how clinic admins and billers add, configure, and change insurers — from Settings setup through patient policy assignment and mid-lifecycle corrections. Grounded in signal from #support_usa_billing, #proj-changeinsurer, and #pt-insurance-foundations.</p>
+  </div>
+
+  <div class="top-bar">
+    <div class="goal-chip"><span>G1</span> Clinic can quickly add and correctly configure a new insurer in Settings</div>
+    <div class="goal-chip"><span>G2</span> Patients can accurately select their insurer during intake with no dead ends</div>
+    <div class="goal-chip"><span>G3</span> Staff can correct a wrong insurer on an existing policy without losing data or restarting from scratch</div>
+  </div>
+
+  <div id="legend" class="legend"></div>
+  <div id="stats-bar" class="stats-bar"></div>
+
+  <div class="controls">
+    <button onclick="document.querySelectorAll('.task-group').forEach(g=>g.classList.add('open'));scheduleArrowRedraw()">Expand All</button>
+    <button onclick="document.querySelectorAll('.task-group').forEach(g=>g.classList.remove('open'));scheduleArrowRedraw()">Collapse All</button>
+    <div class="controls-sep"></div>
+    <button id="btn-default" class="active" onclick="toggleView('default')">Column View</button>
+    <button id="btn-swimlane" onclick="toggleView('swimlane')">Swimlane View</button>
+    <div class="controls-sep"></div>
+    <button id="src-all" class="source-filter-btn active" onclick="filterBySource('all',this)">All Sources</button>
+    <button id="src-interview" class="source-filter-btn" onclick="filterBySource('interview',this)">Interviews</button>
+    <button id="src-community" class="source-filter-btn" onclick="filterBySource('community',this)">Community</button>
+    <button id="src-feedback" class="source-filter-btn" onclick="filterBySource('feedback',this)">Feedback</button>
+    <div class="controls-sep"></div>
+    <button id="btn-edit" onclick="toggleEditMode()">Edit Map</button>
+    <button onclick="exportMap()">&#8595; Download</button>
+  </div>
+
+  <div class="fixed-header-bar" id="fixedHeader"><div class="fh-inner" id="fixedHeaderInner"></div></div>
+
+  <div id="default-view">
+  <div class="map-row">
+
+<!-- ACTIVITY 0: ADD INSURER IN SETTINGS -->
+<div class="activity-group">
+  <div class="activity-label"><div class="activity-num">0</div>Add Insurer in Settings</div>
+  <div class="activity-cols">
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 0.1</div><div class="card-title">Navigate to Settings › Insurers</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="0" data-step="0.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Locate the Insurers page in Settings
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Clinics on certain plans or with restricted user roles can't find the Insurers tab at all — no clear message explains whether they need an add-on or a permission change<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"Do all Jane accounts have the 'Insurers' tab in their settings even without the add-on? The customer says they don't have that option." — Casey M., Support</div></div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Surface a clear message when the Insurers tab is hidden due to plan or permissions — explain what's needed to unlock it rather than silently hiding the tab.</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="system" data-activity="0" data-step="0.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#BBDEFB;color:#0D47A1">Jane System</span>
+            <div class="card-type">Task</div>
+            Display list of existing clinic insurers
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Clinics can accumulate 50+ insurers with near-identical names — duplicates form over time with no detection or merge tool<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"Should these two insurers be the same single insurer? If they're the same, they might consider merging them." — Mosh, Support</div></div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Duplicate detection or a merge-insurer flow surfaced directly on the list view could help clinics keep their insurer roster clean over time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 0.2</div><div class="card-title">Click "Add Insurer" & fill in details</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="0" data-step="0.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Enter insurer name and internal label
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>No naming guidance means clinics create ambiguous names that don't match what patients see on their cards — seeding wrong selections at intake<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"I'd be sure to suggest to them that they name it something that stands out, so it's easy to spot as they are selecting the new insurer." — Karen, Billing Service</div></div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Inline naming tips or a payer lookup that pre-fills details from a known payer database could reduce ambiguous insurer names at creation time.</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="admin" data-activity="0" data-step="0.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Select insurer type: Canadian or US Insurance
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Insurer type (CA vs US) must match the clinic's billing mode setting — mismatches break claims silently and require SU-level batch intervention to fix<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"US insurance doesn't work if the insurer isn't set up with the right insurer type, but also doesn't work if US insurance = enabled." — Mosh</div></div>
+          <div class="card card-opp"><div class="card-type">Opportunity</div>Validate insurer type against billing mode at creation time — surface a clear warning if they don't match before the insurer is saved.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="activity-divider"></div>
+
+<!-- ACTIVITY 1: CONFIGURE INSURER DETAILS -->
+<div class="activity-group">
+  <div class="activity-label"><div class="activity-num">1</div>Configure Insurer Details</div>
+  <div class="activity-cols">
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 1.1</div><div class="card-title">Enter Payer ID & billing fields</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="1" data-step="1.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Enter the payer ID for electronic claim routing
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>When a payer ID changes, clinics face a painful choice: update the insurer (risks re-routing all historical claims) or create a duplicate insurer and manually update every affected patient policy<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"They unfortunately will need to add another insurer into their settings with this new payer ID and then manually go into each patient profile and add a new policy under this new insurer." — Karen, Billing Service</div></div>
+          <div class="card card-opp"><div class="card-type">Opportunity</div>A payer ID versioning model (effective date on payer ID changes) would let clinics update a payer ID without breaking historical routing or forcing per-patient manual work.</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="system" data-activity="1" data-step="1.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#BBDEFB;color:#0D47A1">Jane System</span>
+            <div class="card-type">Task</div>
+            Save insurer configuration and make it available clinic-wide
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Confirm save with a clear success state and a contextual "next step" prompt — e.g. reminding the admin to check staff-level billing overrides if applicable.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 1.2</div><div class="card-title">Set up insurance-specific claim info (optional)</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="1" data-step="1.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Configure per-staff custom billing provider info for this insurer
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>The distinction between group vs individual credentialing per-insurer is easy to misconfigure — leading to claim rejections that are hard to trace back to a billing setup issue<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"If she's credentialed differently with BCBS than other insurers, she can use that Insurance Specific Claim Information area. If not, she can remove that!" — Katie, Support</div></div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>A guided credentialing setup per insurer — individual vs group, NPI, taxonomy code — with contextual help text could reduce misconfiguration at this step.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="activity-divider"></div>
+
+<!-- ACTIVITY 2: PATIENT SELECTS INSURER AT INTAKE -->
+<div class="activity-group">
+  <div class="activity-label"><div class="activity-num">2</div>Patient Selects Insurer at Intake</div>
+  <div class="activity-cols">
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 2.1</div><div class="card-title">Patient opens insurance section of intake form</div></div>
+
+      <div class="task-group" data-actor="patient" data-activity="2" data-step="2.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#C8E6C9;color:#1B5E20">Patient</span>
+            <div class="card-type">Task</div>
+            Browse insurer dropdown to find their insurance plan
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>The dropdown only shows pre-configured insurers — patients whose insurer isn't listed hit a dead end with no way to proceed or enter a custom value<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"I found a workaround of adding a question on the Questionnaire to enter an insurer not listed but I appreciate it's clunky and potentially confusing for patients." — Stine, Support</div></div>
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Clinics work around the missing "Other" option by adding a custom insurer named "Other" and editing intake instructions — a non-obvious admin configuration that most won't find on their own<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"Settings > Insurers > Add one called Other... Custom Introduction: If you do not see your insurer, please select Other and type insurer name for the member ID." — Jeff H., Support</div></div>
+          <div class="card card-opp"><div class="card-type">Opportunity</div>A native "Other / Not listed" option with a free-text field in the insurer dropdown would eliminate this dead end without requiring any clinic admin workaround. (Active Canny FR)</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="system" data-activity="2" data-step="2.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#BBDEFB;color:#0D47A1">Jane System</span>
+            <div class="card-type">Task</div>
+            Render insurer dropdown from clinic's configured insurer list
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Fuzzy search or type-ahead on the insurer dropdown would reduce mis-selections in clinics with long insurer lists.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 2.2</div><div class="card-title">Patient enters member ID, group number & submits</div></div>
+
+      <div class="task-group" data-actor="patient" data-activity="2" data-step="2.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#C8E6C9;color:#1B5E20">Patient</span>
+            <div class="card-type">Task</div>
+            Enter policy number, group number, upload insurance card
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Card scanning (OCR) to pre-fill member ID and group number from a photo of the insurance card would reduce manual entry errors and improve completion rates.</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="system" data-activity="2" data-step="2.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#BBDEFB;color:#0D47A1">Jane System</span>
+            <div class="card-type">Task</div>
+            Create insurance policy on patient profile with insurer field locked
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Once a policy is created, the insurer is permanently locked — any error requires archiving the entire policy and starting over, destroying the uploaded insurance card image in the process<div class="nested-quote" data-source="feedback"><span class="quote-source-badge">Feedback</span>"Once an insurance policy is created in Jane, the insurer is locked in... the only fix is to archive the policy and start over from scratch, losing the patient's uploaded insurance card in the process." — Maddie Maerz, #proj-changeinsurer</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="activity-divider"></div>
+
+<!-- ACTIVITY 3: STAFF ASSIGNS & REVIEWS PATIENT POLICY -->
+<div class="activity-group">
+  <div class="activity-label"><div class="activity-num">3</div>Staff Assigns &amp; Reviews Patient Policy</div>
+  <div class="activity-cols">
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 3.1</div><div class="card-title">Admin reviews patient policy after intake</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="3" data-step="3.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Open patient profile and verify insurer selection is correct
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>With 50+ near-identical insurer names, wrong insurer selection is common — and there is no at-a-glance indicator on the policy card that might flag a mismatch before the first claim is submitted<div class="nested-quote" data-source="feedback"><span class="quote-source-badge">Feedback</span>"Clinics can have 50+ insurers with near-identical names... this was one of the first problems that stuck out to me while re-onboarding to the US space." — Maddie Maerz, PM</div></div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Highlight recently created or rarely-used insurers on a policy card to prompt admin review before the first claim is submitted.</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="biller" data-activity="3" data-step="3.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#FFE0B2;color:#E65100">Biller</span>
+            <div class="card-type">Task</div>
+            Confirm payer ID and billing info look correct before submitting claim
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>A pre-submission summary showing the resolved payer ID and rendering provider for each claim would catch mismatches before they result in rejections.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 3.2</div><div class="card-title">Biller submits claim to insurer</div></div>
+
+      <div class="task-group" data-actor="biller" data-activity="3" data-step="3.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#FFE0B2;color:#E65100">Biller</span>
+            <div class="card-type">Task</div>
+            Submit claim electronically via clearinghouse
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>If the wrong insurer was set, a rejection only comes back weeks later — by then, multiple claims may have been submitted to the wrong payer, requiring significant manual cleanup<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"They might need to update the patient policy because right now they were paid but an insurer not attached to the policy." — Erika, Support</div></div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Real-time eligibility check at claim submission could flag insurer mismatches before the 837 is transmitted — catching errors before the weeks-long feedback loop begins.</div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="system" data-activity="3" data-step="3.2">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#BBDEFB;color:#0D47A1">Jane System</span>
+            <div class="card-type">Task</div>
+            Route claim to clearinghouse using insurer's payer ID
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Surface the resolved payer ID in the claim submission confirmation so billers can verify routing before the claim leaves Jane.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="activity-divider"></div>
+
+<!-- ACTIVITY 4: CHANGE INSURER ON EXISTING POLICY -->
+<div class="activity-group">
+  <div class="activity-label"><div class="activity-num">4</div>Change Insurer on Existing Policy</div>
+  <div class="activity-cols">
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 4.1</div><div class="card-title">Discover the wrong insurer was used</div></div>
+
+      <div class="task-group" data-actor="biller" data-activity="4" data-step="4.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#FFE0B2;color:#E65100">Biller</span>
+            <div class="card-type">Task</div>
+            Identify that a policy was created under the wrong insurer (via rejection, review, or patient update)
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Discovery typically happens only after a claim rejection — not at intake. By the time it's caught, multiple visits may have been billed to the wrong payer, compounding cleanup effort<div class="nested-quote" data-source="feedback"><span class="quote-source-badge">Feedback</span>"If the mistake isn't caught early, it gets worse — claims go out to the wrong insurer, get denied weeks later, and untangling the mess is a significant amount of work." — Maddie Maerz, Product Brief</div></div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="admin" data-activity="4" data-step="4.1">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Navigate to patient profile and locate the incorrect policy
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>A "flagged for review" policy state or a filter for policies with recent claim rejections would make it easier to track in-progress corrections across multiple patient profiles.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 4.2</div><div class="card-title">Attempt to edit the insurer on the policy</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="4" data-step="4.2"
+        data-jira-items='[{"type":"epic","key":"Change Insurer","title":"Edit Policy / Change Insurer","status":"in-progress","url":"https://www.notion.so/janeapp/Edit-Policy-Change-Insurer-314378ecd68380c58448e35266608300"}]'>
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Try to change the insurer — field is currently locked in Jane
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>The insurer field on an existing policy cannot be edited — the only path is archiving the policy and recreating it, which destroys the uploaded insurance card and splits policy history<div class="nested-quote" data-source="feedback"><span class="quote-source-badge">Feedback</span>"Often clinics setup a policy under the wrong insurer. This adds a lot of duplicate effort because you need to re-create the policy identically except modify which insurer it is created under." — Ethan, Billing Service ride-along</div></div>
+          <div class="card card-pain"><div class="card-type">Pain Point</div>188+ Canny votes confirm this as one of the most-requested fixes in the insurance space — surfaces repeatedly in the Facebook community and support channels<div class="nested-quote" data-source="feedback"><span class="quote-source-badge">Feedback</span>"This one has strong signal — 188+ Canny votes and it comes up regularly in our Facebook community and beyond." — Maddie Maerz, PM Brief</div></div>
+          <div class="card card-opp"><div class="card-type">Opportunity</div>Active project in #proj-changeinsurer to ship a single guided flow for changing insurer on a policy. Key open questions: which associated claims to update, versioning vs in-place edit, restrictions post-claim submission.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-col">
+      <div class="card card-step"><div class="card-type">Step 4.3</div><div class="card-title">Workaround: archive & recreate policy</div></div>
+
+      <div class="task-group" data-actor="admin" data-activity="4" data-step="4.3">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#F8BBD0;color:#880E4F">Clinic Admin</span>
+            <div class="card-type">Task</div>
+            Archive incorrect policy, re-enter all details under the correct insurer
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Archiving destroys the patient's uploaded insurance card — it must be re-requested or manually re-uploaded, adding friction for both staff and patient</div>
+          <div class="card card-pain"><div class="card-type">Pain Point</div>Splitting a policy creates a worse paper trail than updating in-place — the history of what was submitted to which insurer becomes fragmented across two policy records<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"Does splitting the policy give us a worse paper trail? If we force a new policy after a rejection, we're not really representing what is happening outside of Jane." — Maddie Maerz</div></div>
+        </div>
+      </div>
+
+      <div class="task-group" data-actor="biller" data-activity="4" data-step="4.3">
+        <div class="task-header" onclick="handleTaskHeaderClick(event,this)">
+          <div class="task-text">
+            <span class="actor-badge" style="background:#FFE0B2;color:#E65100">Biller</span>
+            <div class="card-type">Task</div>
+            Mark affected claims as Unsubmitted and resubmit to correct insurer
+          </div>
+          <div class="toggle">&#9654;</div>
+        </div>
+        <div class="task-details">
+          <div class="card card-pain"><div class="card-type">Pain Point</div>For payer ID changes affecting hundreds of patients, billers face this same cleanup at scale: duplicate insurer in Settings + new policy per patient + mark claims Unsubmitted + resubmit — a full day of work<div class="nested-quote" data-source="community"><span class="quote-source-badge">Community</span>"The key effort here is marking those claims as Unsubmitted, but it's much lighter than rebuilding policies from scratch." — Karen, Billing Service</div></div>
+          <div class="card card-opp"><div class="card-type">Opportunity</div>A bulk "reassign insurer" tool — triggered from the insurer settings page when a payer ID changes — would let clinics do in one operation what currently takes hours across individual patient profiles.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  </div>
+  </div>
+
+  <div id="swimlane-view"></div>
+
+</div>
+
+<div class="edit-notice" id="editNotice">
+  ✏ Edit Mode — click any text to edit
+  <button onclick="toggleEditMode()">Exit Edit Mode</button>
+</div>
+
+<script type="application/json" id="journey-data">
+{
+  "title": "Insurer Management in Jane",
+  "subtitle": "Journey map: adding, editing, and changing an insurer. Covers Settings setup, intake form selection, policy assignment, and mid-lifecycle insurer corrections.",
+  "version": "1.0",
+  "lastUpdated": "2026-03-09",
+  "goals": [
+    {"id": "G1", "text": "Clinic can quickly add and correctly configure a new insurer in Settings"},
+    {"id": "G2", "text": "Patients can accurately select their insurer during intake with no dead ends"},
+    {"id": "G3", "text": "Staff can correct a wrong insurer on an existing policy without losing data or restarting from scratch"}
+  ],
+  "actors": [
+    {"id": "admin", "label": "Clinic Admin", "emoji": "🏥", "bg": "#F8BBD0", "color": "#880E4F"},
+    {"id": "biller", "label": "Biller", "emoji": "🧾", "bg": "#FFE0B2", "color": "#E65100"},
+    {"id": "patient", "label": "Patient", "emoji": "🧑", "bg": "#C8E6C9", "color": "#1B5E20"},
+    {"id": "system", "label": "Jane System", "emoji": "🖥", "bg": "#BBDEFB", "color": "#0D47A1"}
+  ],
+  "activities": [
+    {"num": "0", "name": "Add Insurer in Settings", "steps": [
+      {"id": "0.1", "title": "Navigate to Settings › Insurers"},
+      {"id": "0.2", "title": "Click Add Insurer & fill in details"}
+    ]},
+    {"num": "1", "name": "Configure Insurer Details", "steps": [
+      {"id": "1.1", "title": "Enter Payer ID & billing fields"},
+      {"id": "1.2", "title": "Set up insurance-specific claim info (optional)"}
+    ]},
+    {"num": "2", "name": "Patient Selects Insurer at Intake", "steps": [
+      {"id": "2.1", "title": "Patient opens insurance section of intake form"},
+      {"id": "2.2", "title": "Patient enters member ID, group number & submits"}
+    ]},
+    {"num": "3", "name": "Staff Assigns & Reviews Patient Policy", "steps": [
+      {"id": "3.1", "title": "Admin reviews patient policy after intake"},
+      {"id": "3.2", "title": "Biller submits claim to insurer"}
+    ]},
+    {"num": "4", "name": "Change Insurer on Existing Policy", "steps": [
+      {"id": "4.1", "title": "Discover the wrong insurer was used"},
+      {"id": "4.2", "title": "Attempt to edit the insurer on the policy"},
+      {"id": "4.3", "title": "Workaround: archive & recreate policy"}
+    ]}
+  ]
+}
+</script>
+
+<script>
+let actors=[];let activitiesWithSteps=[];
+function initFromJSON(){const j=document.getElementById('journey-data');if(!j)return;try{const d=JSON.parse(j.textContent);actors=(d.actors||[]).map(a=>({id:a.id,label:(a.emoji?a.emoji+' ':'')+a.label,color:a.bg}));activitiesWithSteps=(d.activities||[]).map(a=>({num:a.num,name:a.name,steps:(a.steps||[]).map(s=>({id:s.id,title:s.title}))}));if(d.lastUpdated&&d.lastUpdated!=='YYYY-MM-DD'){const h=document.querySelector('.page-header');if(h&&!document.getElementById('meta-row')){const m=document.createElement('p');m.id='meta-row';m.className='meta-row';m.textContent='Last updated: '+d.lastUpdated;h.appendChild(m);}}}catch(e){console.warn(e);}}
+function buildLegend(){const l=document.getElementById('legend');if(!l)return;let h=`<div class="legend-item"><div class="legend-swatch" style="background:var(--card-step)"></div> Step</div><div class="legend-item"><div class="legend-swatch" style="background:var(--card-task)"></div> Task</div><div class="legend-item"><div class="legend-swatch" style="background:var(--card-pain)"></div> Pain Point</div><div class="legend-item"><div class="legend-swatch" style="background:var(--card-opp)"></div> Opportunity</div><div class="legend-item"><div class="legend-swatch" style="background:#FFF3F2;border:1.5px dashed #EF9A9A"></div> Suggested Pain</div><div class="legend-item"><div class="legend-swatch" style="background:#F2FAF2;border:1.5px dashed #A5D6A7"></div> Suggested Opp</div>`;if(actors.length){h+='<div class="legend-item" style="margin-left:8px;width:1px;height:11px;background:#ccc"></div>';actors.forEach(a=>{h+=`<div class="legend-item"><div class="legend-swatch" style="background:${a.color}"></div> ${a.label}</div>`;});}l.innerHTML=h;}
+function updateStatsBar(){const b=document.getElementById('stats-bar');if(!b)return;const tasks=document.querySelectorAll('#default-view .task-group').length;let pain=0,opp=0,sug=0;document.querySelectorAll('#default-view .card-pain').forEach(c=>{if(c.closest('.task-details'))pain++;});document.querySelectorAll('#default-view .card-opp').forEach(c=>{if(c.closest('.task-details'))opp++;});document.querySelectorAll('#default-view .card-pain-sug,#default-view .card-opp-sug').forEach(c=>{if(c.closest('.task-details'))sug++;});b.innerHTML=`<div class="stat-item tasks">${tasks} tasks</div><div class="stat-item pain">${pain} pain points</div><div class="stat-item opp">${opp} opportunities</div><div class="stat-item" style="color:var(--text-muted)">${sug} suggestions</div>`;}
+function handleTaskHeaderClick(e,el){if(e.target.closest('.task-quote-link'))return;const tg=el.closest('.task-group');if(!tg)return;tg.classList.toggle('open');scheduleArrowRedraw();}
+function toggleQuotePopover(e,btn){e.stopPropagation();const open=btn.classList.contains('popover-open');document.querySelectorAll('.task-quote-link.popover-open').forEach(b=>b.classList.remove('popover-open'));if(!open)btn.classList.add('popover-open');}
+document.addEventListener('click',()=>{document.querySelectorAll('.task-quote-link.popover-open').forEach(b=>b.classList.remove('popover-open'));});
+function injectQuoteBars(root){(root||document).querySelectorAll('.task-group').forEach(tg=>{const header=tg.querySelector('.task-header');const details=tg.querySelector('.task-details');if(!header||!details)return;const p=details.querySelectorAll('.card-pain .nested-quote:not([style*="display: none"])').length;const o=details.querySelectorAll('.card-opp .nested-quote:not([style*="display: none"])').length;const ps=details.querySelectorAll('.card-pain-sug').length;const os=details.querySelectorAll('.card-opp-sug').length;if(p+o+ps+os===0)return;let mr=header.querySelector('.task-meta-row');if(!mr){mr=document.createElement('div');mr.className='task-meta-row';header.querySelector('.task-text').appendChild(mr);}let bar=mr.querySelector('.quote-bar');if(!bar){bar=document.createElement('div');bar.className='quote-bar';mr.appendChild(bar);}bar.innerHTML='';const add=(cls,n)=>{if(n<=0)return;const c=document.createElement('div');c.className='qb-cell '+cls;c.style.flex=n;bar.appendChild(c);};add('pain',p);add('opp',o);add('pain-sug',ps);add('opp-sug',os);});}
+function filterBySource(s,btn){document.querySelectorAll('.source-filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.nested-quote').forEach(q=>{q.style.display=(s==='all'||q.dataset.source===s)?'':' none';});injectQuoteBars(document.getElementById('default-view'));}
+function toggleView(v){const dv=document.getElementById('default-view');const sv=document.getElementById('swimlane-view');const bd=document.getElementById('btn-default');const bs=document.getElementById('btn-swimlane');const fh=document.getElementById('fixedHeader');if(v==='default'){dv.style.display='';sv.style.display='none';bd.classList.add('active');bs.classList.remove('active');fh.classList.remove('sl-mode');rebuildFixedHeader();}else{dv.style.display='none';sv.style.display='';bd.classList.remove('active');bs.classList.add('active');fh.classList.add('sl-mode');buildSwimlane();}scheduleArrowRedraw();}
+function buildSwimlane(){const sv=document.getElementById('swimlane-view');sv.innerHTML='';const cont=document.createElement('div');cont.className='swimlane-container';const hr=document.createElement('div');hr.className='sl-header-row';const corner=document.createElement('div');corner.className='sl-corner';hr.appendChild(corner);activitiesWithSteps.forEach((act,ai)=>{if(ai>0){const d=document.createElement('div');d.className='sl-header-divider';hr.appendChild(d);}const ag=document.createElement('div');ag.className='sl-header-activity-group';const lbl=document.createElement('div');lbl.className='activity-label';lbl.innerHTML=`<div class="activity-num">${act.num}</div>${act.name}`;ag.appendChild(lbl);const sr=document.createElement('div');sr.className='sl-step-headers';act.steps.forEach(step=>{const sc=document.createElement('div');sc.className='fh-step-card';sc.innerHTML=`<div class="card card-step"><div class="card-type">Step ${step.id}</div><div class="card-title">${step.title}</div></div>`;sr.appendChild(sc);});ag.appendChild(sr);hr.appendChild(ag);});cont.appendChild(hr);actors.forEach(actor=>{const row=document.createElement('div');row.className='sl-actor-row';const lbl=document.createElement('div');lbl.className='sl-actor-label';lbl.innerHTML=`<div class="al-dot" style="background:${actor.color}"></div><span>${actor.label}</span>`;row.appendChild(lbl);const cells=document.createElement('div');cells.className='sl-actor-cells';activitiesWithSteps.forEach((act,ai)=>{if(ai>0){const d=document.createElement('div');d.className='sl-cell-divider';cells.appendChild(d);}const acg=document.createElement('div');acg.className='sl-activity-cell-group';act.steps.forEach(step=>{const cell=document.createElement('div');cell.className='sl-step-cell';cell.dataset.actorId=actor.id;cell.dataset.activityNum=act.num;cell.dataset.stepId=step.id;const tasks=document.querySelectorAll(`#default-view .task-group[data-actor="${actor.id}"][data-activity="${act.num}"][data-step="${step.id}"]`);tasks.forEach(t=>{const clone=t.cloneNode(true);clone.querySelectorAll('.task-header').forEach(h=>{h.onclick=function(e){handleTaskHeaderClick(e,this);scheduleArrowRedraw();};});cell.appendChild(clone);});acg.appendChild(cell);});cells.appendChild(acg);});row.appendChild(cells);cont.appendChild(row);});const overlay=document.createElementNS('http://www.w3.org/2000/svg','svg');overlay.className='sl-arrow-overlay';overlay.id='sl-arrows';cont.appendChild(overlay);sv.appendChild(cont);injectQuoteBars(sv);initJiraPanels(sv);initQuoteLinks(sv);scheduleArrowRedraw();}
+let _at=null;function scheduleArrowRedraw(){clearTimeout(_at);_at=setTimeout(drawArrows,80);}
+function drawArrows(){const sv=document.getElementById('swimlane-view');if(!sv||sv.style.display==='none')return;const overlay=document.getElementById('sl-arrows');if(!overlay)return;const cont=overlay.parentElement;overlay.innerHTML='';const cRect=cont.getBoundingClientRect();const allCells=cont.querySelectorAll('.sl-step-cell');const stepMap={};allCells.forEach(c=>{const k=`${c.dataset.activityNum}_${c.dataset.stepId}`;if(!stepMap[k])stepMap[k]=[];stepMap[k].push(c);});const keys=[];activitiesWithSteps.forEach(a=>{a.steps.forEach(s=>keys.push(`${a.num}_${s.id}`));});for(let i=0;i<keys.length-1;i++){const fc=stepMap[keys[i]];const tc=stepMap[keys[i+1]];if(!fc||!tc)continue;fc.forEach(from=>{const fTasks=from.querySelectorAll('.task-group');if(!fTasks.length)return;tc.forEach(to=>{const tTasks=to.querySelectorAll('.task-group');if(!tTasks.length)return;if(from.dataset.actorId!==to.dataset.actorId)return;const r1=fTasks[fTasks.length-1].getBoundingClientRect();const r2=tTasks[0].getBoundingClientRect();const x1=r1.right-cRect.left;const y1=r1.top+r1.height/2-cRect.top;const x2=r2.left-cRect.left;const y2=r2.top+r2.height/2-cRect.top;const path=document.createElementNS('http://www.w3.org/2000/svg','path');const mx=(x1+x2)/2;path.setAttribute('d',`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);path.setAttribute('marker-end','url(#ah)');overlay.appendChild(path);});});}const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');defs.innerHTML='<marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#7E57C2"/></marker>';overlay.insertBefore(defs,overlay.firstChild);overlay.setAttribute('width',cont.scrollWidth);overlay.setAttribute('height',cont.scrollHeight);overlay.style.width=cont.scrollWidth+'px';overlay.style.height=cont.scrollHeight+'px';}
+function rebuildFixedHeader(){const fhi=document.getElementById('fixedHeaderInner');if(!fhi)return;fhi.innerHTML='';activitiesWithSteps.forEach((act,ai)=>{if(ai>0){const d=document.createElement('div');d.className='fh-divider';fhi.appendChild(d);}const ag=document.createElement('div');ag.className='fh-activity-group';const lbl=document.createElement('div');lbl.className='activity-label';lbl.innerHTML=`<div class="activity-num">${act.num}</div>${act.name}`;ag.appendChild(lbl);const sr=document.createElement('div');sr.className='fh-step-row';act.steps.forEach(step=>{const sc=document.createElement('div');sc.className='fh-step-card';sc.innerHTML=`<div class="card card-step" style="font-size:12px;padding:7px 10px"><div class="card-type">Step ${step.id}</div><div class="card-title">${step.title}</div></div>`;sr.appendChild(sc);});ag.appendChild(sr);fhi.appendChild(ag);});}
+let _ss=false;window.addEventListener('scroll',()=>{const fh=document.getElementById('fixedHeader');const dv=document.getElementById('default-view');if(!fh||!dv)return;fh.classList.toggle('visible',dv.getBoundingClientRect().top<0);if(!_ss){_ss=true;fh.scrollLeft=window.scrollX;_ss=false;}},true);
+function toggleEditMode(){document.body.classList.toggle('edit-mode');const e=document.body.classList.contains('edit-mode');document.getElementById('btn-edit').classList.toggle('active',e);if(e){document.querySelectorAll('.card-title,.card-type,.task-text,.card-pain,.card-opp,.card-pain-sug,.card-opp-sug,.nested-quote,.activity-label').forEach(el=>{if(!el.closest('.activity-num')&&!el.closest('.legend')&&!el.closest('.stats-bar'))el.contentEditable='true';});}else{document.querySelectorAll('[contenteditable="true"]').forEach(el=>el.removeAttribute('contenteditable'));}}
+function exportMap(){const h=document.documentElement.outerHTML;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='insurer-management-journey-map.html';a.click();}
+const JTL={epic:'E',story:'S',bug:'B',task:'T',project:'P'};
+const JSVG=`<svg class="jira-panel-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12.004 2.003 7.4 6.607l2.5 2.5 2.104-2.104 4.5 4.5-2.1 2.1 2.5 2.5 4.6-4.6-9.5-9.5z" fill="#2684FF"/><path d="M4.6 9.397 2.004 12l9.5 9.5 4.6-4.6-2.5-2.5-2.1 2.1-4.5-4.5 2.1-2.1-2.504-2.503z" fill="#2684FF"/></svg>`;
+function initJiraPanels(root){(root||document).querySelectorAll('.task-group[data-jira-items]').forEach(tg=>{let items;try{items=JSON.parse(tg.dataset.jiraItems);}catch(e){return;}if(!Array.isArray(items)||!items.length)return;let panel=tg.querySelector('.jira-panel');if(!panel){panel=document.createElement('div');panel.className='jira-panel';panel.dataset.init='1';panel.innerHTML=`<div class="jira-panel-header">${JSVG}Related Issues<span class="jira-panel-toggle">&#9654;</span></div><div class="jira-panel-body"></div>`;panel.querySelector('.jira-panel-header').addEventListener('click',()=>panel.classList.toggle('open'));const det=tg.querySelector('.task-details');if(det)det.appendChild(panel);}const body=panel.querySelector('.jira-panel-body');if(!body)return;body.innerHTML='';items.forEach(item=>{const type=(item.type||'task').toLowerCase();const sc=item.status?item.status.toLowerCase().replace(/\s+/g,'-'):'todo';const el=item.url?document.createElement('a'):document.createElement('div');el.className='jira-item';if(item.url){el.href=item.url;el.target='_blank';el.rel='noopener noreferrer';}el.innerHTML=`<div class="jira-item-type ${type}">${JTL[type]||type[0].toUpperCase()}</div><div class="jira-item-meta">${item.key?`<div class="jira-item-key">${item.key}</div>`:''}<div class="jira-item-title">${item.title||'(untitled)'}</div>${item.status?`<span class="jira-item-status ${sc}">${item.status}</span>`:''}</div>`;body.appendChild(el);});const h=panel.querySelector('.jira-panel-header');if(h)h.innerHTML=`${JSVG}Related Issues <span style="color:#78909C;font-weight:400">(${items.length})</span><span class="jira-panel-toggle">&#9654;</span>`;});}
+function injectJiraIndicators(root){(root||document).querySelectorAll('.task-group[data-jira-items]').forEach(tg=>{const header=tg.querySelector('.task-header');if(!header||header.querySelector('.jira-badge'))return;let items;try{items=JSON.parse(tg.dataset.jiraItems);}catch(e){return;}if(!items||!items.length)return;const badge=document.createElement('span');badge.className='jira-badge';badge.innerHTML=`${JSVG}${items.length}`;const mr=header.querySelector('.task-meta-row')||(()=>{const m=document.createElement('div');m.className='task-meta-row';header.querySelector('.task-text').appendChild(m);return m;})();mr.appendChild(badge);});}
+function initQuoteLinks(root){(root||document).querySelectorAll('.task-group').forEach(tg=>{const header=tg.querySelector('.task-header');if(!header||header.querySelector('.task-quote-link'))return;const quotes=tg.querySelectorAll('.task-details .nested-quote');if(!quotes.length)return;const btn=document.createElement('button');btn.className='task-quote-link';btn.title=`${quotes.length} source quote${quotes.length!==1?'s':''}`;btn.setAttribute('onclick','toggleQuotePopover(event,this)');btn.innerHTML=`<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H9l-2 2-2-2H3a1 1 0 0 1-1-1V3zm3 2a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5zm0 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H5z"/></svg><div class="quote-popover"><div class="quote-popover-title">Source Quotes</div></div>`;const toggle=header.querySelector('.toggle');if(toggle)header.insertBefore(btn,toggle);else header.appendChild(btn);header.onclick=function(e){handleTaskHeaderClick(e,this);};})}
+document.addEventListener('DOMContentLoaded',()=>{initFromJSON();buildLegend();injectQuoteBars(document.getElementById('default-view'));initQuoteLinks(document.getElementById('default-view'));initJiraPanels(document.getElementById('default-view'));injectJiraIndicators(document.getElementById('default-view'));updateStatsBar();rebuildFixedHeader();const sv=document.getElementById('swimlane-view');const obs=new MutationObserver(scheduleArrowRedraw);obs.observe(sv,{attributes:true,attributeFilter:['class'],subtree:true,childList:true});});
+document.querySelector('.controls').addEventListener('click',()=>{scheduleArrowRedraw();});
+</script>
+</body>
+</html>
