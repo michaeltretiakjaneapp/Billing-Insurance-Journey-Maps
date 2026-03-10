@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insurance — Complete Flow Mega Map</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #E8E6E1;
+  --text: #1A1A1A;
+  --muted: #5A5751;
+  --border: #D5D2CC;
+
+  --g-setup: #3949AB;
+  --g-setup-bg: #E8EAF6;
+  --g-setup-border: #9FA8DA;
+
+  --g-patient: #6A1B9A;
+  --g-patient-bg: #F3E5F5;
+  --g-patient-border: #CE93D8;
+
+  --g-claim: #BF360C;
+  --g-claim-bg: #FBE9E7;
+  --g-claim-border: #FFAB91;
+
+  --g-exception: #B71C1C;
+  --g-exception-bg: #FFEBEE;
+  --g-exception-border: #EF9A9A;
+
+  --g-billing: #1B5E20;
+  --g-billing-bg: #E8F5E9;
+  --g-billing-border: #A5D6A7;
+
+  --g-reporting: #004D40;
+  --g-reporting-bg: #E0F2F1;
+  --g-reporting-border: #80CBC4;
+
+  --g-maint: #37474F;
+  --g-maint-bg: #ECEFF1;
+  --g-maint-border: #B0BEC5;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: auto;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  padding: 32px 40px 80px;
+  min-width: max-content;
+}
+
+/* ── NAV ── */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(0,0,0,0.07);
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin-bottom: 18px;
+}
+.back:hover { background: rgba(0,0,0,0.12); }
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 24px; }
+.page-header h1 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 5px;
+}
+.page-header p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 820px;
+}
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.stat {
+  background: rgba(255,255,255,0.6);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.stat-num {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+.stat-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── MACRO FLOW ── */
+.macro-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 28px;
+  flex-wrap: nowrap;
+  background: rgba(255,255,255,0.5);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  width: fit-content;
+}
+.macro-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px solid;
+  min-width: 110px;
+}
+.macro-group-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+.macro-group-journeys {
+  font-size: 9.5px;
+  font-weight: 600;
+  opacity: 0.65;
+  text-align: center;
+}
+.macro-arrow {
+  font-size: 18px;
+  color: var(--muted);
+  padding: 0 6px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.macro-loop {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 3px;
+  opacity: 0.7;
+}
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: fit-content;
+}
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1.5px solid transparent;
+}
+.leg-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── MAIN CANVAS ── */
+.canvas { display: flex; flex-direction: column; gap: 6px; }
+
+/* ── GROUP ── */
+.group {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.group-header {
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.group-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.group-desc {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.6;
+}
+.group-count {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.5;
+}
+
+/* ── ROW ── */
+.row {
+  display: flex;
+  align-items: flex-start;
+  background: rgba(255,255,255,0.38);
+  border-top: 1px solid rgba(0,0,0,0.07);
+  padding: 13px 16px;
+  gap: 14px;
+}
+.row:hover { background: rgba(255,255,255,0.55); }
+
+/* ── JOURNEY INFO ── */
+.j-info {
+  width: 195px;
+  min-width: 195px;
+  padding-top: 2px;
+}
+.j-num {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.j-title {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 7px;
+}
+.j-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: #1A1A1A;
+  text-decoration: none;
+  padding: 4px 9px;
+  border-radius: 5px;
+}
+.j-open:hover { background: #333; }
+
+/* ── PHASES ── */
+.phases {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0;
+}
+.phase-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 4px;
+}
+.phase-box {
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1.5px solid;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  max-width: 152px;
+  min-width: 90px;
+  text-align: center;
+  white-space: normal;
+}
+.phase-alt {
+  border-style: dashed;
+  opacity: 0.75;
+}
+.phase-arrow {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 0 4px;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+.phase-split {
+  color: var(--muted);
+  font-size: 11px;
+  padding: 0 4px;
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+/* ── CONNECTIONS COLUMN ── */
+.j-connects {
+  min-width: 185px;
+  padding-left: 14px;
+  padding-top: 3px;
+  border-left: 1px dashed var(--border);
+}
+.connects-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.connect-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.ctag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+/* ── CONNECTION MAP ── */
+.connection-map {
+  margin-top: 28px;
+  background: rgba(255,255,255,0.55);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+.connection-map h2 {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  letter-spacing: -0.2px;
+}
+.connection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 7px;
+}
+.citem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  padding: 7px 11px;
+  background: rgba(255,255,255,0.65);
+  border-radius: 7px;
+  border: 1px solid var(--border);
+}
+.cfrom { font-weight: 800; }
+.carrow { color: var(--muted); font-size: 13px; }
+.cto { font-weight: 800; }
+.creason {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+  font-style: italic;
+  text-align: right;
+  max-width: 140px;
+  line-height: 1.3;
+}
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: 28px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="index.html">← All Journey Maps</a>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1>Insurance Flow — Mega Map</h1>
+    <p>All 15 journeys in sequence, from initial setup through year-end reset. Each row shows a journey's phases in order; the right column shows where its output feeds next. Dashed phase boxes indicate alternate or future-state paths.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-num">15</div>
+      <div class="stat-label">Journeys</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">67</div>
+      <div class="stat-label">Phases</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">14</div>
+      <div class="stat-label">Handoff Points</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">7</div>
+      <div class="stat-label">Lifecycle Stages</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Loop-back Cycles</div>
+    </div>
+  </div>
+
+  <!-- MACRO FLOW -->
+  <div class="macro-flow">
+    <div class="macro-group" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">
+      <div class="macro-group-label">Setup &amp; Config</div>
+      <div class="macro-group-journeys">J01 · J02</div>
+    </div>
+    <div class="macro-arrow">→</div>
+    <div class="macro-group" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">
+      <div class="macro-group-label">Patient Setup</div>
+      <div class="macro-group-journeys">J03 · J04</div>
+    </div>
+    <div class="macro-arrow">→</div>
+    <div class="macro-group" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">
+      <div class="macro-group-label">Claim Lifecycle</div>
+      <div class="macro-group-journeys">J05 · J06 · J07</div>
+    </div>
+    <div class="macro-arrow">→</div>
+    <div class="macro-group" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">
+      <div class="macro-group-label">Exceptions</div>
+      <div class="macro-group-journeys">J08 · J09</div>
+      <div class="macro-loop">↻ loops to J06</div>
+    </div>
+    <div class="macro-arrow">→</div>
+    <div class="macro-group" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">
+      <div class="macro-group-label">Billing &amp; COB</div>
+      <div class="macro-group-journeys">J10 · J11</div>
+    </div>
+    <div class="macro-arrow">→</div>
+    <div class="macro-group" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">
+      <div class="macro-group-label">Reporting</div>
+      <div class="macro-group-journeys">J12 · J13</div>
+    </div>
+    <div class="macro-arrow">→</div>
+    <div class="macro-group" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">
+      <div class="macro-group-label">Maintenance</div>
+      <div class="macro-group-journeys">J14 · J15</div>
+      <div class="macro-loop">↻ loops to J03</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">
+      <span class="leg-dot" style="background:var(--g-setup)"></span>Setup &amp; Configuration
+    </div>
+    <div class="leg" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">
+      <span class="leg-dot" style="background:var(--g-patient)"></span>Patient Setup
+    </div>
+    <div class="leg" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">
+      <span class="leg-dot" style="background:var(--g-claim)"></span>Claim Lifecycle
+    </div>
+    <div class="leg" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">
+      <span class="leg-dot" style="background:var(--g-exception)"></span>Exception Handling
+    </div>
+    <div class="leg" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">
+      <span class="leg-dot" style="background:var(--g-billing)"></span>Billing &amp; Collections
+    </div>
+    <div class="leg" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">
+      <span class="leg-dot" style="background:var(--g-reporting)"></span>Reporting &amp; Reconciliation
+    </div>
+    <div class="leg" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">
+      <span class="leg-dot" style="background:var(--g-maint)"></span>Maintenance &amp; Reset
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- MAIN CANVAS                                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="canvas">
+
+    <!-- ── GROUP 1: SETUP ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-setup-bg)">
+        <span class="group-label" style="color:var(--g-setup)">Setup &amp; Configuration</span>
+        <span class="group-desc" style="color:var(--g-setup)">Configure Jane for billing before any claims can flow</span>
+        <span class="group-count" style="color:var(--g-setup)">J01 – J02</span>
+      </div>
+
+      <!-- J01 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 01</div>
+          <div class="j-title">Insurer Setup</div>
+          <a class="j-open" href="journey-01-insurer-setup.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Add Insurer in Settings</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Configure Insurer Details</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Patient Selects Insurer at Intake</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Staff Assigns &amp; Reviews Policy</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Change Insurer on Policy</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-03-patient-policy-setup.html" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">→ J03 Patient Policy</a>
+            <a class="ctag" href="journey-14-change-insurer.html" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">→ J14 Change Insurer</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J02 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 02</div>
+          <div class="j-title">Insurance Onboarding</div>
+          <a class="j-open" href="journey-02-insurance-onboarding.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Decide &amp; Enable Insurance</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Configure Billing Details</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Clearinghouse Setup</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-setup-bg);border-color:var(--g-setup-border);color:var(--g-setup)">Submit the First Claim</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-05-claim-creation.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J05 Claim Creation</a>
+            <a class="ctag" href="journey-06-claim-submission.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J06 Claim Submission</a>
+            <a class="ctag" href="journey-11-coordination-of-benefits.html" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">→ J11 COB</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GROUP 2: PATIENT SETUP ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-patient-bg)">
+        <span class="group-label" style="color:var(--g-patient)">Patient Setup</span>
+        <span class="group-desc" style="color:var(--g-patient)">Enroll patients and verify coverage before each claim cycle</span>
+        <span class="group-count" style="color:var(--g-patient)">J03 – J04</span>
+      </div>
+
+      <!-- J03 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 03</div>
+          <div class="j-title">Patient Policy Setup</div>
+          <a class="j-open" href="journey-03-patient-policy-setup.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Patient Receives Intake Form</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Patient Fills In Insurance Info</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Staff Reviews &amp; Approves Policy</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Attach Policy to Appointment</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Alt: Staff Enters Manually</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-04-eligibility-verification.html" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">→ J04 Eligibility</a>
+            <a class="ctag" href="journey-05-claim-creation.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J05 Claim Creation</a>
+            <a class="ctag" href="journey-15-end-of-year-policy-reset.html" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">→ J15 Year-End Reset</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J04 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 04</div>
+          <div class="j-title">Eligibility Verification</div>
+          <a class="j-open" href="journey-04-eligibility-verification.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Decide to Run a Check</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Run Electronic Check (271)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Interpret the Results</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">Alt: Call Insurer (Fallback)</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-05-claim-creation.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J05 Claim Creation</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GROUP 3: CLAIM LIFECYCLE ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-claim-bg)">
+        <span class="group-label" style="color:var(--g-claim)">Claim Lifecycle</span>
+        <span class="group-desc" style="color:var(--g-claim)">Build, submit, and receive payment — the core billing loop</span>
+        <span class="group-count" style="color:var(--g-claim)">J05 – J07</span>
+      </div>
+
+      <!-- J05 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 05</div>
+          <div class="j-title">Claim Creation</div>
+          <a class="j-open" href="journey-05-claim-creation.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Arrive the Appointment</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Add Billing Codes (CPT)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Add Diagnosis &amp; Modifiers</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Confirm Rendering Provider</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Claim → Ready to Submit</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-06-claim-submission.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J06 Claim Submission</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J06 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 06</div>
+          <div class="j-title">Claim Submission</div>
+          <a class="j-open" href="journey-06-claim-submission.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Select Claims to Submit</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Pre-Flight Check</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Generate EDI &amp; Transmit</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Monitor Acknowledgements (277)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Future: Stedi / Portal Paths</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-07-era-remittance-processing.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J07 ERA Processing</a>
+            <a class="ctag" href="journey-11-coordination-of-benefits.html" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">→ J11 COB</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J07 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 07</div>
+          <div class="j-title">ERA Remittance Processing</div>
+          <a class="j-open" href="journey-07-era-remittance-processing.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">ERA Arrives in Jane (835)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Scan for Exceptions</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Process Routine Claims (95%)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Handle Exception Claims</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">Future: Remi AI Processing</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-08-claim-denial-resubmission.html" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">→ J08 Denial</a>
+            <a class="ctag" href="journey-09-reversals-takebacks.html" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">→ J09 Reversals</a>
+            <a class="ctag" href="journey-10-patient-billing.html" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">→ J10 Patient Billing</a>
+            <a class="ctag" href="journey-12-insurer-invoice-reconciliation.html" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">→ J12 Reconciliation</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GROUP 4: EXCEPTIONS ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-exception-bg)">
+        <span class="group-label" style="color:var(--g-exception)">Exception Handling</span>
+        <span class="group-desc" style="color:var(--g-exception)">Denials, resubmissions, and payment reversals triggered by ERA exceptions</span>
+        <span class="group-count" style="color:var(--g-exception)">J08 – J09</span>
+      </div>
+
+      <!-- J08 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 08</div>
+          <div class="j-title">Claim Denial &amp; Resubmission</div>
+          <a class="j-open" href="journey-08-claim-denial-resubmission.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Denial Received</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Investigate the Denial</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Correct the Claim</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Resubmit the Claim</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Resolution &amp; Follow-Up</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-06-claim-submission.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">↻ J06 Resubmission</a>
+            <a class="ctag" href="journey-10-patient-billing.html" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">→ J10 Patient Billing</a>
+            <a class="ctag" href="journey-12-insurer-invoice-reconciliation.html" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">→ J12 Reconciliation</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J09 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 09</div>
+          <div class="j-title">Reversals &amp; Takebacks</div>
+          <a class="j-open" href="journey-09-reversals-takebacks.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Discover Reversal in ERA</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Path A: Neutral Reversal</div>
+            <span class="phase-split"> / </span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Path B: Positive Reversal</div>
+            <span class="phase-split"> / </span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Path C/D: Same-/Cross-ERA Takeback</div>
+            <span class="phase-split"> / </span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-exception-bg);border-color:var(--g-exception-border);color:var(--g-exception)">Path E: Paper/Letter Takeback</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-10-patient-billing.html" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">→ J10 Patient Billing</a>
+            <a class="ctag" href="journey-12-insurer-invoice-reconciliation.html" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">→ J12 Reconciliation</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GROUP 5: BILLING & COB ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-billing-bg)">
+        <span class="group-label" style="color:var(--g-billing)">Billing &amp; Collections</span>
+        <span class="group-desc" style="color:var(--g-billing)">Collect the remaining patient balance and coordinate multi-payer scenarios</span>
+        <span class="group-count" style="color:var(--g-billing)">J10 – J11</span>
+      </div>
+
+      <!-- J10 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 10</div>
+          <div class="j-title">Patient Billing</div>
+          <a class="j-open" href="journey-10-patient-billing.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Determine Patient Balance</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Generate &amp; Send Statement</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Collect Payment</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Reconcile &amp; Close Visit</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Handle Exceptions</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-12-insurer-invoice-reconciliation.html" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">→ J12 Reconciliation</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J11 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 11</div>
+          <div class="j-title">Coordination of Benefits</div>
+          <a class="j-open" href="journey-11-coordination-of-benefits.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Set Up Dual Policies</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Submit Primary Claim &amp; Wait</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Receive Primary ERA</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Submit Secondary Claim (US)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">Canadian COB &amp; Limitations</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-07-era-remittance-processing.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">→ J07 Secondary ERA</a>
+            <a class="ctag" href="journey-10-patient-billing.html" style="background:var(--g-billing-bg);border-color:var(--g-billing-border);color:var(--g-billing)">→ J10 Patient Billing</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GROUP 6: REPORTING ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-reporting-bg)">
+        <span class="group-label" style="color:var(--g-reporting)">Reporting &amp; Reconciliation</span>
+        <span class="group-desc" style="color:var(--g-reporting)">Confirm payments received, surface AR aging, and report insurer performance</span>
+        <span class="group-count" style="color:var(--g-reporting)">J12 – J13</span>
+      </div>
+
+      <!-- J12 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 12</div>
+          <div class="j-title">Insurer Invoice Reconciliation</div>
+          <a class="j-open" href="journey-12-insurer-invoice-reconciliation.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Trigger Reconciliation</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Generate Billing Report</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Aging Analysis (30/60/90+ days)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Reconcile Payments to Claims</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Produce Final Statement</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-13-insurer-reporting-analytics.html" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">→ J13 Reporting</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J13 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 13</div>
+          <div class="j-title">Insurer Reporting &amp; Analytics</div>
+          <a class="j-open" href="journey-13-insurer-reporting-analytics.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Check the AR Report</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Track Outstanding Claims</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">Review Insurer Performance</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-reporting-bg);border-color:var(--g-reporting-border);color:var(--g-reporting)">The Reporting Gap</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Terminal</div>
+          <div class="connect-tags">
+            <span style="font-size:10px;color:var(--muted);font-style:italic;">Final output — no downstream journey</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GROUP 7: MAINTENANCE ── -->
+    <div class="group">
+      <div class="group-header" style="background:var(--g-maint-bg)">
+        <span class="group-label" style="color:var(--g-maint)">Maintenance &amp; Reset</span>
+        <span class="group-desc" style="color:var(--g-maint)">Correct insurer assignments and prepare policies for a new benefit year</span>
+        <span class="group-count" style="color:var(--g-maint)">J14 – J15</span>
+      </div>
+
+      <!-- J14 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 14</div>
+          <div class="j-title">Change Insurer on Existing Policy</div>
+          <a class="j-open" href="journey-14-change-insurer.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Discover the Error</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Attempt the Change</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Workaround: Archive &amp; Recreate</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Remediate Downstream Impact</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Future: Native Insurer Change</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-03-patient-policy-setup.html" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">↻ J03 Policy Re-setup</a>
+            <a class="ctag" href="journey-05-claim-creation.html" style="background:var(--g-claim-bg);border-color:var(--g-claim-border);color:var(--g-claim)">↻ J05/06 Re-claim</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- J15 -->
+      <div class="row">
+        <div class="j-info">
+          <div class="j-num">Journey 15</div>
+          <div class="j-title">End-of-Year Policy Reset</div>
+          <a class="j-open" href="journey-15-end-of-year-policy-reset.html">Open ↗</a>
+        </div>
+        <div class="phases">
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Prepare Before Year-End (Dec)</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Reset Policies in Jane</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Link to January Appointments</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Recovery: Late Reset</div>
+            <span class="phase-arrow">→</span>
+          </div>
+          <div class="phase-item">
+            <div class="phase-box phase-alt" style="background:var(--g-maint-bg);border-color:var(--g-maint-border);color:var(--g-maint)">Design Gap: Scheduled Changes</div>
+          </div>
+        </div>
+        <div class="j-connects">
+          <div class="connects-label">Feeds into</div>
+          <div class="connect-tags">
+            <a class="ctag" href="journey-03-patient-policy-setup.html" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">↻ J03 New-Year Policy</a>
+            <a class="ctag" href="journey-04-eligibility-verification.html" style="background:var(--g-patient-bg);border-color:var(--g-patient-border);color:var(--g-patient)">↻ J04 Re-verify Benefits</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /canvas -->
+
+  <!-- CONNECTION MAP -->
+  <div class="connection-map">
+    <h2>Key Handoff Points — How Journeys Connect</h2>
+    <div class="connection-grid">
+      <div class="citem">
+        <span class="cfrom">J01</span><span class="carrow">→</span><span class="cto">J03</span>
+        <span class="creason">Insurer available for patient policies</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J01</span><span class="carrow">→</span><span class="cto">J14</span>
+        <span class="creason">Wrong insurer locked after creation</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J02</span><span class="carrow">→</span><span class="cto">J05, J06</span>
+        <span class="creason">Clearinghouse &amp; billing config enables claims</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J02</span><span class="carrow">→</span><span class="cto">J11</span>
+        <span class="creason">Clearinghouse enrollment enables COB</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J03</span><span class="carrow">→</span><span class="cto">J04</span>
+        <span class="creason">Active policy triggers eligibility check</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J03</span><span class="carrow">→</span><span class="cto">J15</span>
+        <span class="creason">Active policy must be reset at year-end</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J04</span><span class="carrow">→</span><span class="cto">J05</span>
+        <span class="creason">Benefits confirmed — claim can be built</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J05</span><span class="carrow">→</span><span class="cto">J06</span>
+        <span class="creason">Claim marked "Ready to Submit" enters queue</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J06</span><span class="carrow">→</span><span class="cto">J07</span>
+        <span class="creason">Accepted claim generates 835 ERA from payer</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J06</span><span class="carrow">→</span><span class="cto">J11</span>
+        <span class="creason">Primary submission starts COB cycle</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J07</span><span class="carrow">→</span><span class="cto">J08</span>
+        <span class="creason">Denial codes in ERA trigger resubmission flow</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J07</span><span class="carrow">→</span><span class="cto">J09</span>
+        <span class="creason">Reversal entries in ERA trigger takeback flow</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J07</span><span class="carrow">→</span><span class="cto">J10</span>
+        <span class="creason">Insurer payment applied → patient balance set</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J08</span><span class="carrow">↻</span><span class="cto">J06</span>
+        <span class="creason">Corrected claim loops back to submission</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J07–J09</span><span class="carrow">→</span><span class="cto">J12</span>
+        <span class="creason">All ERA outcomes feed reconciliation</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J11</span><span class="carrow">→</span><span class="cto">J07</span>
+        <span class="creason">Secondary claim generates its own ERA</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J12</span><span class="carrow">→</span><span class="cto">J13</span>
+        <span class="creason">Reconciled data surfaces in AR reporting</span>
+      </div>
+      <div class="citem">
+        <span class="cfrom">J15</span><span class="carrow">↻</span><span class="cto">J03</span>
+        <span class="creason">Reset policies feed back into patient setup</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    15 journeys · Dashed phase boxes = alternate or future-state paths · ↻ = loop-back
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
