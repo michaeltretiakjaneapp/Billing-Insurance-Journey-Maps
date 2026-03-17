@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Journey Map — Change Insurer on Existing Policy</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
   :root{--bg:#E8E6E1;--text:#1A1A1A;--text-muted:#5A5751;--card-task:#FFF9C4;--card-task-border:#E8DF8A;--card-pain:#FFCDD2;--card-pain-border:#EF9A9A;--card-step:#D1C4E9;--card-step-border:#B39DDB;--card-opp:#C8E6C9;--card-opp-border:#A5D6A7;--activity-bg:#1A1A1A;--grid-line:#D5D2CC;--shadow:#D4D1CC20;--col-w:280px}
@@ -237,8 +238,9 @@
           <div class="toggle">&#9654;</div>
         </div>
         <div class="task-details">
-          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>A patient arrives and mentions their insurance changed — or the admin scans their card and sees it doesn't match what's in Jane. At this moment, there is no streamlined way to update the insurer on the existing policy. The admin must decide between leaving the error in place and dealing with it later, or beginning the archive/recreate workaround immediately before the appointment.</div>
-          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>An "Update Insurance" shortcut on the check-in screen that opens the policy editor with the insurer field unlocked — enabling front-desk corrections without disrupting the appointment flow.</div>
+          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>This step actually covers two distinct scenarios that lead to different actions and should be treated separately. (1) The patient's insurance genuinely changed — the correct resolution is creating a new policy to reflect the new coverage. (2) An admin spots a data-entry error (e.g. the insurer in Jane doesn't match the card in hand) — the correct resolution is editing the existing policy in place. The current product offers no streamlined path for either case, but conflating them leads to the wrong fix being applied.</div>
+          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>When the trigger is a genuine insurance change, the admin must begin the archive/recreate workaround immediately before the appointment — disrupting check-in flow. When the trigger is an entry error, the admin still hits the locked insurer field with no in-place correction path available.</div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>An "Update Insurance" shortcut on the check-in screen that branches based on context: if the patient's coverage has changed, guide the admin to create a new policy; if a data-entry error is detected, open the policy editor with the insurer field unlocked for an in-place correction — without disrupting the appointment flow in either case.</div>
         </div>
       </div>
 
@@ -247,12 +249,12 @@
           <div class="task-text">
             <span class="actor-badge" data-actor="patient" style="background:#C8E6C9;color:#1B5E20">Patient</span>
             <div class="card-type">Task</div>
-            Reports receiving an EOB or bill from the wrong insurer
+            Contacts clinic after receiving unexpected billing correspondence
           </div>
           <div class="toggle">&#9654;</div>
         </div>
         <div class="task-details">
-          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>Patients who discover the error via an unexpected EOB or billing statement often don't understand what happened — they received a document from an insurer they may not recognise, creating confusion and eroding trust in the clinic. The clinic must absorb this patient-facing fallout in addition to the administrative correction.</div>
+          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>Patients may contact the clinic when they notice a discrepancy — for example, their explanation of benefits (EOB) shows a different plan than expected, or they receive a patient-responsibility notice they weren't anticipating. In practice, a claim submitted to the wrong insurer will typically be rejected (insurers won't pay on a policy they don't hold), so the patient rarely receives a payment-confirmation EOB from the wrong plan. The patient confusion more often stems from a balance-due notice after the rejected claim lands back at the clinic without being resubmitted.</div>
         </div>
       </div>
     </div>
@@ -271,7 +273,7 @@
         </div>
         <div class="task-details">
           <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>There is no quick way in Jane to see "all appointments and claims tied to this specific policy" at a glance. Billers must manually cross-reference the patient's appointment history, the Unsubmitted folder, and the Billing tab to reconstruct the full scope of the error — a time-consuming audit with no dedicated tooling.</div>
-          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>If claims have already been submitted and paid under the wrong insurer, the biller must determine whether to void those claims, whether to issue a refund to the wrong payer, and how to resubmit to the correct insurer without triggering duplicate claim flags — a cascade of compliance decisions with no in-product guidance.</div>
+          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>The risk of a claim being paid by the wrong insurer is largely a non-issue in practice — insurers act as the stop gate and will reject claims submitted on a policy they don't hold before any payment goes out. The real downstream concern is tracking which claims were rejected, ensuring they are resubmitted to the correct insurer within timely filing windows, and confirming none were inadvertently written off rather than corrected and resubmitted.</div>
           <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>A policy impact summary on the correction flow: "This policy is linked to 6 appointments and 3 submitted claims. Here's what will be affected if you change the insurer" — giving the biller full situational awareness before making any changes.</div>
         </div>
       </div>
@@ -430,7 +432,7 @@
         <div class="task-details">
           <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>Because the new policy is a fresh record, it is not automatically linked to any past or future appointments. Every appointment that was previously attached to the wrong policy must be manually updated to use the new one — one by one, with no bulk re-attach capability.</div>
           <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>Future appointments are also affected — recurring appointments that had the old policy attached will need to be updated individually. In practices with weekly recurring clients, this can mean dozens of appointments requiring manual re-attachment.</div>
-          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>When a policy correction is made, offer a one-click "Re-attach to all appointments from [date range]" action — selecting which appointments should be updated in bulk rather than requiring per-appointment manual changes.</div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Note: the re-attachment pain described above is specific to the archive/recreate workaround path. When the native "Change Insurer" fix ships (Activity 4), changing the policy in place means all appointments — past and future — automatically reflect the corrected insurer with no re-attachment step required. Bulk re-attachment tooling is only relevant as a stop-gap if the native fix is delayed and clinics need relief sooner.</div>
         </div>
       </div>
     </div>
@@ -449,7 +451,7 @@
         </div>
         <div class="task-details">
           <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>Claims submitted to the wrong insurer must be voided (Resubmission Code 8) to recover any payment made in error and remove the claim from the wrong payer's records. This is a multi-step process with real financial risk — accidental voids, missed timely filing on the correct insurer, and duplicate payment recovery all become possible failure modes.</div>
-          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>If the wrong insurer has already paid the claim, the biller must issue a refund to the wrong payer before resubmitting to the correct one. Jane has no workflow for coordinating a payment refund alongside a claim void — billers manage this entirely outside the product.</div>
+          <div class="card card-pain-sug"><div class="card-type">Suggested Pain Point</div>In practice, the wrong insurer will reject — not pay — a claim submitted on a policy they don't hold, so a refund-to-wrong-payer scenario is uncommon. The more realistic risk is that a rejected claim sits unaddressed while the timely filing window on the correct insurer closes. Jane has no mechanism to flag rejected claims that need to be redirected to a different insurer — billers must track this manually outside the product.</div>
           <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>A "Correct insurer and resubmit" guided workflow that handles the full sequence: void the claim to the wrong payer → flag for refund if paid → resubmit to the correct insurer — keeping the full correction traceable within Jane rather than split across external spreadsheets.</div>
         </div>
       </div>
@@ -508,7 +510,7 @@
           <div class="toggle">&#9654;</div>
         </div>
         <div class="task-details">
-          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Before committing the insurer change, the system should surface a confirmation modal: "This policy is linked to 4 appointments and 2 unsubmitted claims. Changing the insurer will update all linked records. Do you want to also re-attach this policy to past appointments?" — giving the user informed control over the cascading effects.</div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Before committing the insurer change, the system should surface a confirmation modal: "This policy is linked to 4 appointments and 2 unsubmitted claims. Changing the insurer will update all linked appointments and claims. Note: invoice documents that already reference the previous insurer in plain text will not be retroactively updated — historical billing records are preserved as-is." — giving the user informed control over the cascading effects and setting clear expectations about what won't change.</div>
         </div>
       </div>
     </div>
@@ -541,7 +543,7 @@
           <div class="toggle">&#9654;</div>
         </div>
         <div class="task-details">
-          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>All future appointments already linked to this policy should be automatically updated to reflect the corrected insurer — no per-appointment manual re-attachment required. Past appointments within a configurable date range should be offered as an optional bulk update, with the biller selecting which range applies.</div>
+          <div class="card card-opp-sug"><div class="card-type">Suggested Opportunity</div>Because the native fix changes the policy in place (rather than archiving and recreating it), all appointments — past and future — automatically reflect the corrected insurer the moment the change is saved. There is no re-attachment step and no bulk tooling required. This is a meaningful advantage of the in-place approach over the workaround, and should be called out explicitly in release communications.</div>
         </div>
       </div>
     </div>
@@ -566,7 +568,7 @@
   "title": "Change Insurer on Existing Policy",
   "subtitle": "Jane · Insurance Billing · Journey #14 — What happens when the wrong insurer is on a patient's policy and needs to be corrected. 188+ Canny votes. Active project: #proj-changeinsurer.",
   "version": "1.0",
-  "lastUpdated": "2026-03-10",
+  "lastUpdated": "2026-03-17",
   "goals": [
     {"id": "G1", "text": "Correct the wrong insurer quickly without disrupting existing claims"},
     {"id": "G2", "text": "Preserve the full paper trail — submission history, card images, EOBs"},
